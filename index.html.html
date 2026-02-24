@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>French Revolution — Causes Card Sort</title>
+<style>
+  /* ── All fonts are system fonts — zero external calls ── */
+  :root {
+    --font-display: Georgia, "Palatino Linotype", Palatino, "Times New Roman", serif;
+    --font-body: "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --bg: #1a1209;
+    --parchment: #f5e9c8;
+    --parchment-dark: #e8d5a3;
+    --red: #8b1a1a;
+    --gold: #c9a227;
+    --gold-dim: rgba(201,162,39,0.35);
+    --blue: #1a3a5c;
+    --green: #2d5a27;
+    --ink: #1a1209;
+    --card-bg: #faf3e0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    min-height: 100vh;
+    padding: 16px;
+    color: var(--ink);
+    /* Prevent Teams webview from doing odd text size adjustments */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* ── FALLBACK BANNER (shown if JS blocked, hidden by JS immediately) ── */
+  #jsFallback {
+    background: #8b1a1a;
+    color: #f5e9c8;
+    text-align: center;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 16px 0 10px;
+    margin-bottom: 14px;
+  }
+
+  header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 4vw, 30px);
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  header p {
+    color: var(--parchment-dark);
+    font-style: italic;
+    margin-top: 5px;
+    font-size: clamp(11px, 2vw, 14px);
+    opacity: 0.85;
+  }
+
+  /* ── NAME BAR ── */
+  .name-bar {
+    max-width: 1100px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(201,162,39,0.08);
+    border: 1px solid rgba(201,162,39,0.3);
+    border-radius: 8px;
+    padding: 9px 14px;
+  }
+
+  .name-bar label {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: 13px;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+
+  .name-bar input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(201,162,39,0.4);
+    border-radius: 5px;
+    padding: 7px 11px;
+    color: var(--parchment);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    /* Prevent iOS zoom on focus */
+    font-size: 16px;
+  }
+
+  .name-bar input:focus { border-color: var(--gold); }
+  .name-bar input::placeholder { color: rgba(245,233,200,0.3); font-style: italic; }
+
+  /* ── INSTRUCTIONS ── */
+  .instructions {
+    background: rgba(201,162,39,0.13);
+    border: 1px solid rgba(201,162,39,0.4);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--parchment);
+    font-size: clamp(11px, 1.8vw, 13px);
+    margin: 0 auto 16px;
+    text-align: center;
+    line-height: 1.55;
+    max-width: 1100px;
+  }
+
+  .instructions strong { color: var(--gold); }
+
+  /* ── LAYOUT ── */
+  .main-layout {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── POOL ── */
+  .cards-pool {
+    background: rgba(245,233,200,0.07);
+    border: 2px dashed rgba(201,162,39,0.3);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 140px;
+  }
+
+  .pool-title {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: clamp(10px, 1.8vw, 13px);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .cards-container {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 50px;
+    -webkit-justify-content: center;
+    justify-content: center;
+  }
+
+  /* ── CATEGORIES ROW ── */
+  .categories-row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    gap: 10px;
+  }
+
+  .category {
+    -webkit-flex: 1;
+    flex: 1;
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 180px;
+    -webkit-transition: -webkit-transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .category.economic  { background: rgba(26,58,92,0.25);  border: 2px solid rgba(26,58,92,0.55); }
+  .category.political { background: rgba(139,26,26,0.25); border: 2px solid rgba(139,26,26,0.55); }
+  .category.social    { background: rgba(45,90,39,0.25);  border: 2px solid rgba(45,90,39,0.55); }
+  .category.drag-over { -webkit-transform: scale(1.02); transform: scale(1.02); box-shadow: 0 0 18px rgba(201,162,39,0.35); }
+
+  .cat-header {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(12px, 2vw, 15px);
+    text-align: center;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .category.economic  .cat-header { color: #6eb4e8; border-bottom: 2px solid rgba(26,58,92,0.5); }
+  .category.political .cat-header { color: #e88a8a; border-bottom: 2px solid rgba(139,26,26,0.5); }
+  .category.social    .cat-header { color: #8ed48a; border-bottom: 2px solid rgba(45,90,39,0.5); }
+
+  .cat-hint {
+    font-size: 10px;
+    text-align: center;
+    opacity: 0.65;
+    color: var(--parchment-dark);
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+
+  .drop-zone {
+    min-height: 70px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 3px;
+    -webkit-align-content: flex-start;
+    align-content: flex-start;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid #c8a96e;
+    border-radius: 7px;
+    padding: 9px 10px;
+    cursor: -webkit-grab;
+    cursor: grab;
+    font-size: clamp(10px, 1.4vw, 12px);
+    line-height: 1.4;
+    width: 148px;
+    min-height: 56px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    text-align: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-transition: box-shadow 0.15s;
+    transition: box-shadow 0.15s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.55);
+    position: relative;
+    color: var(--ink);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    touch-action: none;
+    font-family: var(--font-body);
+  }
+
+  /* Coloured top stripe per category */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 7px 7px 0 0;
+  }
+
+  .card[data-category="economic"]::before  { background: var(--blue); }
+  .card[data-category="political"]::before { background: var(--red); }
+  .card[data-category="social"]::before    { background: var(--green); }
+
+  .card.dragging  { opacity: 0.45; -webkit-transform: scale(0.94); transform: scale(0.94); }
+  .card.correct   { border-color: #4caf50; box-shadow: 0 0 10px rgba(76,175,80,0.45); }
+  .card.incorrect { border-color: #f44336; box-shadow: 0 0 10px rgba(244,67,54,0.45); -webkit-animation: shake 0.4s; animation: shake 0.4s; }
+
+  @-webkit-keyframes shake {
+    0%,100% { -webkit-transform: translateX(0); }
+    20% { -webkit-transform: translateX(-5px); }
+    40% { -webkit-transform: translateX(5px); }
+    60% { -webkit-transform: translateX(-3px); }
+    80% { -webkit-transform: translateX(3px); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    gap: 10px;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-family: var(--font-display);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: clamp(11px, 1.8vw, 13px);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .btn-check { background: var(--gold); color: var(--bg); }
+  .btn-check:active { background: #e6b82e; }
+  .btn-rank  { background: transparent; color: var(--gold); border: 2px solid var(--gold); }
+  .btn-rank:active  { background: rgba(201,162,39,0.15); }
+  .btn-pdf   { background: #5a1010; color: var(--parchment); border: 2px solid var(--red); }
+  .btn-pdf:active   { background: var(--red); }
+  .btn-reset { background: transparent; color: rgba(245,233,200,0.55); border: 1px solid rgba(245,233,200,0.25); font-size: 11px; }
+
+  /* ── SCORE BANNER ── */
+  .score-banner {
+    display: none;
+    text-align: center;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-family: var(--font-display);
+    font-size: clamp(12px, 2vw, 16px);
+    line-height: 1.4;
+  }
+
+  .score-banner.show      { display: block; }
+  .score-banner.perfect   { background: rgba(76,175,80,0.18);  color: #81c784; border: 1px solid rgba(76,175,80,0.4); }
+  .score-banner.good      { background: rgba(201,162,39,0.18); color: var(--gold); border: 1px solid rgba(201,162,39,0.4); }
+  .score-banner.try-again { background: rgba(244,67,54,0.13);  color: #ef9a9a; border: 1px solid rgba(244,67,54,0.3); }
+
+  /* ── RANKING SECTION ── */
+  .ranking-section {
+    background: rgba(201,162,39,0.07);
+    border: 1px solid rgba(201,162,39,0.32);
+    border-radius: 10px;
+    padding: 18px 14px;
+    display: none;
+  }
+
+  .ranking-section.visible { display: block; }
+
+  .ranking-title {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: clamp(13px, 2.2vw, 18px);
+    margin-bottom: 5px;
+    text-align: center;
+  }
+
+  .ranking-subtitle {
+    color: var(--parchment-dark);
+    font-style: italic;
+    font-size: clamp(10px, 1.6vw, 12px);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .ranking-slots {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    gap: 12px;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
+
+  .rank-slot {
+    -webkit-flex: 1;
+    flex: 1;
+    min-width: 200px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 12px 10px;
+  }
+
+  .rank-header {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .rank-number {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold);
+    width: 34px;
+    height: 34px;
+    background: rgba(201,162,39,0.18);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+  }
+
+  .rank-label-text {
+    font-family: var(--font-display);
+    color: var(--parchment-dark);
+    font-size: 11px;
+    font-style: italic;
+  }
+
+  .rank-drop {
+    width: 100%;
+    min-height: 62px;
+    border: 2px dashed rgba(201,162,39,0.4);
+    border-radius: 7px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    color: rgba(201,162,39,0.32);
+    font-style: italic;
+    font-size: 11px;
+    padding: 4px;
+    text-align: center;
+  }
+
+  .rank-drop.drag-over { background: rgba(201,162,39,0.1); border-color: var(--gold); }
+
+  .rank-reason-label {
+    font-size: 9px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    font-family: var(--font-display);
+  }
+
+  .rank-reason {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,162,39,0.28);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--parchment);
+    font-family: var(--font-body);
+    font-size: 14px; /* 16px prevents iOS zoom, but 14px is fine in a webview */
+    resize: vertical;
+    min-height: 85px;
+    outline: none;
+    line-height: 1.55;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .rank-reason:focus { border-color: var(--gold); }
+  .rank-reason::placeholder { color: rgba(245,233,200,0.25); font-style: italic; }
+
+  /* ── TOUCH GHOST ── */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0.82;
+    z-index: 9999;
+    -webkit-transform: rotate(3deg) scale(1.04);
+    transform: rotate(3deg) scale(1.04);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.38);
+  }
+</style>
+</head>
+<body>
+
+<!-- Shown if JS is blocked; JS hides it immediately on load -->
+<div id="jsFallback">
+  &#9888; The cards did not load. Please open this file in <strong>Safari</strong> rather than inside Teams or another app browser.
+</div>
+
+<header>
+  <h1>&#9884; The French Revolution &#9884;</h1>
+  <p>Causes of the Crisis &mdash; Card Sort Activity</p>
+</header>
+
+<div class="name-bar">
+  <label for="studentName">&#9998; Your Name:</label>
+  <input type="text" id="studentName" placeholder="Type your name here before you start..." autocomplete="off">
+</div>
+
+<div class="instructions">
+  <strong>Task 1:</strong> Drag each cause into the correct category &mdash; <strong>Economic</strong>, <strong>Political</strong>, or <strong>Social</strong>.<br>
+  Press <strong>Check My Answers</strong> when done. Once all correct, complete <strong>Task 2</strong> &mdash; rank your top 3, write your explanations, then press <strong>Save My Record</strong>.
+</div>
+
+<div class="main-layout" id="mainLayout">
+
+  <div class="cards-pool" id="pool">
+    <div class="pool-title">&#128220; Causes to Sort</div>
+    <div class="cards-container" id="cardsContainer">
+      <!-- Cards written directly in HTML — no JS needed to create them -->
+      <div class="card" id="c1"  data-category="economic"  draggable="true">France was in debt for over 100 years by 1787</div>
+      <div class="card" id="c2"  data-category="social"    draggable="true">The harvest of 1788 was very bad &#8212; food was scarce</div>
+      <div class="card" id="c3"  data-category="economic"  draggable="true">The price of bread rose by 50% between 1788 and 1789</div>
+      <div class="card" id="c4"  data-category="political" draggable="true">The First and Second Estates refused to pay taxes</div>
+      <div class="card" id="c5"  data-category="political" draggable="true">The Parlement of Paris refused the King&#8217;s new land tax</div>
+      <div class="card" id="c6"  data-category="social"    draggable="true">Summer hailstorms destroyed crops across France</div>
+      <div class="card" id="c7"  data-category="political" draggable="true">Calonne&#8217;s plan to tax landowners was rejected by the nobility</div>
+      <div class="card" id="c8"  data-category="social"    draggable="true">Working-class people in cities could not afford to eat</div>
+      <div class="card" id="c9"  data-category="economic"  draggable="true">Landowners kept their corn back to sell at higher prices</div>
+      <div class="card" id="c10" data-category="political" draggable="true">The King dismissed the Assembly of Notables when they refused him</div>
+      <div class="card" id="c11" data-category="social"    draggable="true">There were violent riots across France in winter 1788</div>
+      <div class="card" id="c12" data-category="economic"  draggable="true">The government could not raise money without noble agreement</div>
+    </div>
+  </div>
+
+  <div class="categories-row">
+    <div class="category economic" data-cat="economic">
+      <div class="cat-header">Economic</div>
+      <div class="cat-hint">Money, debt, taxation, prices</div>
+      <div class="drop-zone" id="drop-economic"></div>
+    </div>
+    <div class="category political" data-cat="political">
+      <div class="cat-header">Political</div>
+      <div class="cat-hint">Government, power, laws</div>
+      <div class="drop-zone" id="drop-political"></div>
+    </div>
+    <div class="category social" data-cat="social">
+      <div class="cat-header">Social</div>
+      <div class="cat-hint">People, food, daily life</div>
+      <div class="drop-zone" id="drop-social"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-check" id="btnCheck" onclick="checkAnswers()">&#10003; Check My Answers</button>
+    <button class="btn-rank"  id="rankBtn"  onclick="showRanking()" style="display:none">&#9733; Task 2: Rank Top 3</button>
+    <button class="btn-pdf"   id="pdfBtn"   onclick="generateRecord()" style="display:none">&#128196; Save My Record</button>
+    <button class="btn-reset" onclick="resetAll()">&#8635; Reset</button>
+  </div>
+
+  <div class="score-banner" id="scoreBanner"></div>
+
+  <div class="ranking-section" id="rankingSection">
+    <div class="ranking-title">&#9733; Task 2: Rank the Top 3 Most Important Causes</div>
+    <div class="ranking-subtitle">Drag a cause into each position, then explain WHY it is so important in the box below it.</div>
+    <div class="ranking-slots">
+
+      <div class="rank-slot">
+        <div class="rank-header">
+          <div class="rank-number">1</div>
+          <div class="rank-label-text">Most Important</div>
+        </div>
+        <div class="rank-drop" id="rank-1" data-rank="1">Drop a cause here</div>
+        <div class="rank-reason-label">Why is this #1?</div>
+        <textarea class="rank-reason" id="reason-1" placeholder="Explain why this cause was the most important. Think about: how many people it affected, whether it caused other problems, and whether the Revolution could have happened without it..."></textarea>
+      </div>
+
+      <div class="rank-slot">
+        <div class="rank-header">
+          <div class="rank-number">2</div>
+          <div class="rank-label-text">Second Most Important</div>
+        </div>
+        <div class="rank-drop" id="rank-2" data-rank="2">Drop a cause here</div>
+        <div class="rank-reason-label">Why is this #2?</div>
+        <textarea class="rank-reason" id="reason-2" placeholder="Explain why this cause was very important. Why did you rank it above the others but below your #1?"></textarea>
+      </div>
+
+      <div class="rank-slot">
+        <div class="rank-header">
+          <div class="rank-number">3</div>
+          <div class="rank-label-text">Third Most Important</div>
+        </div>
+        <div class="rank-drop" id="rank-3" data-rank="3">Drop a cause here</div>
+        <div class="rank-reason-label">Why is this #3?</div>
+        <textarea class="rank-reason" id="reason-3" placeholder="Explain why this cause still matters, even though you ranked it third. Could the Revolution have happened without it?"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end main-layout -->
+
+<script>
+// Hide the JS-blocked fallback banner immediately
+(function() {
+  var fb = document.getElementById('jsFallback');
+  if (fb) fb.style.display = 'none';
+})();
+
+var draggedEl  = null;
+var dragGhost  = null;
+var touchOffX  = 0;
+var touchOffY  = 0;
+var checked    = false;
+var dropZones  = [];
+
+/* ── Zone detection (rect-based, immune to overlapping cards) */
+function snapZones() {
+  var zones = [];
+  var cats = document.querySelectorAll('.category');
+  for (var i = 0; i < cats.length; i++) {
+    var inner = cats[i].querySelector('.drop-zone');
+    if (inner) zones.push({ hitEl: cats[i], dropEl: inner });
+  }
+  var pool = document.getElementById('cardsContainer');
+  if (pool) zones.push({ hitEl: pool, dropEl: pool });
+  var rankDrops = document.querySelectorAll('.rank-drop');
+  for (var j = 0; j < rankDrops.length; j++) {
+    zones.push({ hitEl: rankDrops[j], dropEl: rankDrops[j] });
+  }
+  dropZones = [];
+  for (var k = 0; k < zones.length; k++) {
+    dropZones.push({ dropEl: zones[k].dropEl, rect: zones[k].hitEl.getBoundingClientRect() });
+  }
+}
+
+function findZoneAt(x, y) {
+  for (var i = 0; i < dropZones.length; i++) {
+    var r = dropZones[i].rect;
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+      return dropZones[i].dropEl;
+    }
+  }
+  return null;
+}
+
+/* ── Attach listeners to cards already in the HTML ─────── */
+function attachCardListeners() {
+  var container = document.getElementById('cardsContainer');
+  if (!container) return;
+  // Shuffle cards visually by re-appending in random order
+  var cards = Array.prototype.slice.call(container.querySelectorAll('.card'));
+  for (var j = cards.length - 1; j > 0; j--) {
+    var k = Math.floor(Math.random() * (j + 1));
+    container.appendChild(cards[k]);
+    cards.splice(k, 1);
+  }
+  // Attach drag/touch listeners
+  var allCards = container.querySelectorAll('.card');
+  for (var i = 0; i < allCards.length; i++) {
+    allCards[i].addEventListener('dragstart',  onDragStart);
+    allCards[i].addEventListener('dragend',    onDragEnd);
+    allCards[i].addEventListener('touchstart', onTouchStart, { passive: true });
+    allCards[i].addEventListener('touchmove',  onTouchMove,  { passive: false });
+    allCards[i].addEventListener('touchend',   onTouchEnd,   { passive: true });
+  }
+  setupMouseZones();
+}
+
+function setupMouseZones() {
+  var zones = document.querySelectorAll('.drop-zone, #cardsContainer, .rank-drop');
+  for (var i = 0; i < zones.length; i++) {
+    (function(zone) {
+      zone.addEventListener('dragover',  function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', function(e) { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
+      zone.addEventListener('drop',      function(e) { e.preventDefault(); zone.classList.remove('drag-over'); placeCard(zone); });
+    })(zones[i]);
+  }
+}
+
+/* ── Mouse drag ────────────────────────────────────────── */
+function onDragStart(e) {
+  draggedEl = e.currentTarget || e.target;
+  e.dataTransfer.effectAllowed = 'move';
+  // Use timeout so the browser renders the drag image before we hide the original
+  setTimeout(function() { if (draggedEl) draggedEl.classList.add('dragging'); }, 0);
+}
+
+function onDragEnd() {
+  if (draggedEl) draggedEl.classList.remove('dragging');
+  draggedEl = null;
+  var overs = document.querySelectorAll('.drag-over');
+  for (var i = 0; i < overs.length; i++) overs[i].classList.remove('drag-over');
+}
+
+/* ── Touch drag ────────────────────────────────────────── */
+function onTouchStart(e) {
+  draggedEl = e.currentTarget || e.target;
+  var touch = e.touches[0];
+  var rect = draggedEl.getBoundingClientRect();
+  touchOffX = touch.clientX - rect.left;
+  touchOffY = touch.clientY - rect.top;
+
+  // Re-snapshot rects — columns grow as cards fill them
+  snapZones();
+
+  // Create floating ghost
+  dragGhost = draggedEl.cloneNode(true);
+  dragGhost.className = dragGhost.className + ' drag-ghost';
+  dragGhost.style.width  = rect.width  + 'px';
+  dragGhost.style.height = rect.height + 'px';
+  dragGhost.style.left   = (touch.clientX - touchOffX) + 'px';
+  dragGhost.style.top    = (touch.clientY - touchOffY) + 'px';
+  document.body.appendChild(dragGhost);
+  draggedEl.classList.add('dragging');
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  if (!draggedEl) return;
+  var touch = e.touches[0];
+
+  if (dragGhost) {
+    dragGhost.style.left = (touch.clientX - touchOffX) + 'px';
+    dragGhost.style.top  = (touch.clientY - touchOffY) + 'px';
+  }
+
+  // Clear old highlights
+  var overs = document.querySelectorAll('.drag-over');
+  for (var i = 0; i < overs.length; i++) overs[i].classList.remove('drag-over');
+
+  // Highlight the zone the finger is currently over
+  var zone = findZoneAt(touch.clientX, touch.clientY);
+  if (zone) {
+    var highlight = zone.closest ? zone.closest('.category') : null;
+    (highlight || zone).classList.add('drag-over');
+  }
+}
+
+function onTouchEnd(e) {
+  if (!draggedEl) return;
+  var touch = e.changedTouches[0];
+
+  if (dragGhost) { dragGhost.parentNode && dragGhost.parentNode.removeChild(dragGhost); dragGhost = null; }
+  var overs = document.querySelectorAll('.drag-over');
+  for (var i = 0; i < overs.length; i++) overs[i].classList.remove('drag-over');
+
+  draggedEl.classList.remove('dragging');
+
+  var zone = findZoneAt(touch.clientX, touch.clientY);
+  if (zone) placeCard(zone);
+
+  draggedEl = null;
+}
+
+/* ── Place + highlight ─────────────────────────────────── */
+function placeCard(zone) {
+  if (!draggedEl) return;
+  zone.appendChild(draggedEl);
+  if (checked) { updateCardHighlight(draggedEl); rerunScore(); }
+}
+
+function updateCardHighlight(card) {
+  var zone = card.parentElement;
+  // Walk up to find [data-cat] ancestor
+  while (zone && !zone.getAttribute('data-cat')) zone = zone.parentElement;
+  card.classList.remove('correct', 'incorrect');
+  if (!zone) return;
+  if (zone.getAttribute('data-cat') === card.getAttribute('data-category')) {
+    card.classList.add('correct');
+  } else {
+    card.classList.add('incorrect');
+  }
+}
+
+/* ── Check / Score ─────────────────────────────────────── */
+function checkAnswers() {
+  checked = true;
+  var allCards = document.querySelectorAll('.card');
+  for (var i = 0; i < allCards.length; i++) updateCardHighlight(allCards[i]);
+  rerunScore();
+}
+
+function rerunScore() {
+  var correct = 0, placed = 0;
+  var allCards = document.querySelectorAll('.card');
+  for (var i = 0; i < allCards.length; i++) {
+    var card = allCards[i];
+    var zone = card.parentElement;
+    while (zone && !zone.getAttribute('data-cat')) zone = zone.parentElement;
+    if (!zone) continue;
+    placed++;
+    if (zone.getAttribute('data-cat') === card.getAttribute('data-category')) correct++;
+  }
+
+  var banner = document.getElementById('scoreBanner');
+  banner.className = 'score-banner show';
+
+  if (placed < 12) {
+    banner.className += ' try-again';
+    banner.textContent = 'You haven\u2019t sorted all the cards yet \u2014 ' + (12 - placed) + ' still in the pool!';
+    return;
+  }
+  if (correct === placed) {
+    banner.className += ' perfect';
+    banner.textContent = '\u29DC Parfait! All ' + placed + ' cards correctly sorted. Now complete Task 2 \u2014 rank your top 3 and explain your choices!';
+    document.getElementById('rankBtn').style.display = 'inline-block';
+    document.getElementById('pdfBtn').style.display  = 'inline-block';
+  } else if (correct >= placed * 0.7) {
+    banner.className += ' good';
+    banner.textContent = correct + ' out of ' + placed + ' correct. The red cards are in the wrong category \u2014 drag them somewhere else!';
+  } else {
+    banner.className += ' try-again';
+    banner.textContent = correct + ' out of ' + placed + ' correct. Check the red cards \u2014 is each cause about money, power, or people\u2019s lives?';
+  }
+}
+
+/* ── Ranking ────────────────────────────────────────────── */
+function showRanking() {
+  var section = document.getElementById('rankingSection');
+  section.classList.add('visible');
+  snapZones(); // Include the new rank-drop zones
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+function resetAll() {
+  checked = false;
+  var container = document.getElementById('cardsContainer');
+  var allCards = document.querySelectorAll('.card');
+  for (var i = 0; i < allCards.length; i++) {
+    allCards[i].classList.remove('correct', 'incorrect', 'dragging');
+    container.appendChild(allCards[i]);
+  }
+  var reasons = document.querySelectorAll('.rank-reason');
+  for (var j = 0; j < reasons.length; j++) reasons[j].value = '';
+  document.getElementById('scoreBanner').className = 'score-banner';
+  document.getElementById('rankBtn').style.display = 'none';
+  document.getElementById('pdfBtn').style.display  = 'none';
+  document.getElementById('rankingSection').classList.remove('visible');
+  snapZones();
+}
+
+/* ── Generate printable record ──────────────────────────── */
+function generateRecord() {
+  var name  = (document.getElementById('studentName').value || '').trim() || 'Student';
+  var today = new Date();
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var dateStr = today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
+
+  // Collect sorted cards
+  var cats = { economic: [], political: [], social: [] };
+  var allCards = document.querySelectorAll('.card');
+  for (var i = 0; i < allCards.length; i++) {
+    var card = allCards[i];
+    var zone = card.parentElement;
+    while (zone && !zone.getAttribute('data-cat')) zone = zone.parentElement;
+    if (zone && cats[zone.getAttribute('data-cat')]) {
+      cats[zone.getAttribute('data-cat')].push(card.textContent.trim());
+    }
+  }
+
+  // Collect rankings
+  var ranks = [];
+  for (var n = 1; n <= 3; n++) {
+    var drop   = document.getElementById('rank-' + n);
+    var cardEl = drop ? drop.querySelector('.card') : null;
+    var reasonEl = document.getElementById('reason-' + n);
+    ranks.push({
+      text:   cardEl    ? cardEl.textContent.trim() : '(not ranked)',
+      reason: reasonEl  ? (reasonEl.value || '').trim() : ''
+    });
+  }
+
+  function catBlock(arr, borderCol, bgCol, textCol, labelCol) {
+    var rows = '';
+    if (!arr.length) {
+      rows = '<div style="color:#bbb;font-style:italic;font-size:12px;padding:4px 0;">No cards placed here</div>';
+    } else {
+      for (var i = 0; i < arr.length; i++) {
+        rows += '<div style="background:' + bgCol + ';color:' + textCol + ';border-radius:5px;padding:6px 9px;margin-bottom:5px;font-size:12px;line-height:1.4;">' + arr[i] + '</div>';
+      }
+    }
+    return '<div><div style="font-size:12px;font-weight:700;color:' + labelCol + ';text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid ' + borderCol + ';padding-bottom:5px;margin-bottom:8px;font-family:Georgia,serif;">' +
+      (borderCol === '#1a3a5c' ? 'Economic' : borderCol === '#8b1a1a' ? 'Political' : 'Social') +
+      '</div>' + rows + '</div>';
+  }
+
+  var rankBlocks = '';
+  for (var r = 0; r < ranks.length; r++) {
+    var rank = ranks[r];
+    rankBlocks += '<div style="border:1.5px solid #c9a227;border-radius:8px;padding:13px 15px;margin-bottom:13px;background:#fffdf5;">' +
+      '<div style="display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;">' +
+      '<div style="min-width:32px;height:32px;border-radius:50%;border:2px solid #c9a227;background:#fff8e0;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:900;font-size:15px;color:#8b6914;flex-shrink:0;">' + (r + 1) + '</div>' +
+      '<div style="font-family:Georgia,serif;font-size:14px;font-weight:700;color:#1a1209;padding-top:5px;">' + rank.text + '</div>' +
+      '</div>' +
+      '<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#8b1a1a;margin-bottom:5px;font-family:Georgia,serif;">Why is this #' + (r + 1) + '?</div>' +
+      '<div style="background:#fff;border:1px solid #e0cc99;border-radius:5px;padding:9px 11px;min-height:52px;font-size:12px;line-height:1.65;color:' + (rank.reason ? '#1a1209' : '#bbb') + ';font-style:' + (rank.reason ? 'normal' : 'italic') + ';">' +
+      (rank.reason || 'No explanation written.') +
+      '</div></div>';
+  }
+
+  var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n' +
+    '<title>Card Sort Record - ' + name + '</title>\n' +
+    '<style>\n* { box-sizing:border-box; margin:0; padding:0; }\n' +
+    'body { font-family: Georgia, "Palatino Linotype", serif; background:#fff; color:#1a1209; }\n' +
+    '@media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .no-print { display:none !important; } @page { margin:1.5cm; size:A4; } }\n' +
+    '</style>\n</head>\n<body>\n' +
+    '<div style="max-width:720px;margin:0 auto;padding:28px 22px;">\n' +
+
+    '<div style="text-align:center;border-bottom:3px solid #c9a227;padding-bottom:16px;margin-bottom:20px;">\n' +
+    '<div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:7px;font-family:Georgia,serif;">Year 8 History &middot; The French Revolution</div>\n' +
+    '<div style="font-size:26px;font-weight:900;color:#1a1209;margin-bottom:3px;font-family:Georgia,serif;">Causes of the Revolution</div>\n' +
+    '<div style="font-size:13px;color:#8b1a1a;font-style:italic;margin-bottom:13px;font-family:Georgia,serif;">Card Sort Record</div>\n' +
+    '<div style="display:inline-flex;gap:36px;background:#fffdf5;border:1px solid #e0cc99;border-radius:6px;padding:7px 18px;font-size:12px;color:#444;">' +
+    '<span><strong>Name:</strong> ' + name + '</span><span><strong>Date:</strong> ' + dateStr + '</span></div>\n</div>\n' +
+
+    '<div style="font-size:15px;font-weight:700;margin-bottom:11px;font-family:Georgia,serif;">&#9884; Task 1 &mdash; My Card Sort</div>\n' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:26px;">\n' +
+    catBlock(cats.economic,  '#1a3a5c', '#ddeef9', '#1a3a5c', '#1a3a5c') +
+    catBlock(cats.political, '#8b1a1a', '#f9dddd', '#6b1010', '#8b1a1a') +
+    catBlock(cats.social,    '#2d5a27', '#ddf0dd', '#1e4019', '#2d5a27') +
+    '</div>\n' +
+
+    '<div style="font-size:15px;font-weight:700;margin-bottom:11px;font-family:Georgia,serif;">&#9733; Task 2 &mdash; My Top 3 Most Important Causes</div>\n' +
+    rankBlocks +
+
+    '<div style="margin-top:24px;border-top:1px solid #e0cc99;padding-top:12px;text-align:center;font-size:10px;color:#bbb;font-style:italic;font-family:Georgia,serif;">' +
+    'Lyc&eacute;e Michel Lucius &middot; The French Revolution &middot; Card Sort Activity</div>\n' +
+
+    '<div class="no-print" style="text-align:center;margin-top:24px;">\n' +
+    '<button onclick="window.print()" style="font-family:Georgia,serif;background:#8b1a1a;color:#fff;border:none;padding:11px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;">' +
+    '&#128424; Print / Save as PDF</button>\n' +
+    '<p style="font-size:11px;color:#aaa;margin-top:9px;font-style:italic;font-family:Georgia,serif;">' +
+    'On iPad: tap the Share icon then choose <strong>Print</strong> or <strong>Save to Files</strong> to save as PDF</p>\n' +
+    '</div>\n</div>\n</body>\n</html>';
+
+  var win = window.open('', '_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  } else {
+    alert('Please allow pop-ups for this page, then press Save My Record again.');
+  }
+}
+
+/* ── Init ───────────────────────────────────────────────── */
+function init() {
+  attachCardListeners();
+  snapZones();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+window.addEventListener('resize', snapZones);
+window.addEventListener('scroll', snapZones, true);
+</script>
+</body>
+</html>
